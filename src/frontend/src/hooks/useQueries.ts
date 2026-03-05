@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ExternalBlob } from "../backend";
-import type { Notice, Photo, StudyMaterial } from "../backend.d";
+import type { Notice, Photo, StudyMaterial, VisitorEntry } from "../backend.d";
 import { useActor } from "./useActor";
 
 export function useGetAllNotices() {
@@ -153,6 +153,38 @@ export function useDeletePhoto() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["photos"] });
+    },
+  });
+}
+
+export function useGetAllVisitors() {
+  const { actor, isFetching } = useActor();
+  return useQuery<VisitorEntry[]>({
+    queryKey: ["visitors"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllVisitors();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSignInVisitor() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      name,
+      institution,
+    }: {
+      name: string;
+      institution: string;
+    }) => {
+      if (!actor) throw new Error("Not connected");
+      return actor.signInVisitor(name, institution);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["visitors"] });
     },
   });
 }

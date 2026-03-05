@@ -33,6 +33,12 @@ export interface Notice {
     content: string;
     date: Time;
 }
+export interface VisitorEntry {
+    id: bigint;
+    institution: string;
+    name: string;
+    visitedAt: Time;
+}
 export interface UserProfile {
     name: string;
 }
@@ -50,14 +56,18 @@ export interface backendInterface {
     getAllNotices(): Promise<Array<Notice>>;
     getAllPhotos(): Promise<Array<Photo>>;
     getAllStudyMaterials(): Promise<Array<StudyMaterial>>;
+    getAllVisitors(): Promise<Array<VisitorEntry>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getNotice(id: bigint): Promise<Notice | null>;
     getPhoto(id: bigint): Promise<Photo | null>;
     getStudyMaterial(id: bigint): Promise<StudyMaterial | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getVisitorCount(): Promise<bigint>;
     isCallerAdmin(): Promise<boolean>;
+    recordVisit(): Promise<bigint>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    signInVisitor(name: string, institution: string): Promise<VisitorEntry>;
     uploadPhoto(title: string, image: ExternalBlob): Promise<void>;
     uploadStudyMaterial(title: string, description: string, subject: string, file: ExternalBlob): Promise<void>;
 }

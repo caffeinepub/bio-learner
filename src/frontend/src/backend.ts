@@ -115,6 +115,12 @@ export interface _CaffeineStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
 }
+export interface VisitorEntry {
+    id: bigint;
+    institution: string;
+    name: string;
+    visitedAt: Time;
+}
 export interface UserProfile {
     name: string;
 }
@@ -143,14 +149,18 @@ export interface backendInterface {
     getAllNotices(): Promise<Array<Notice>>;
     getAllPhotos(): Promise<Array<Photo>>;
     getAllStudyMaterials(): Promise<Array<StudyMaterial>>;
+    getAllVisitors(): Promise<Array<VisitorEntry>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getNotice(id: bigint): Promise<Notice | null>;
     getPhoto(id: bigint): Promise<Photo | null>;
     getStudyMaterial(id: bigint): Promise<StudyMaterial | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
+    getVisitorCount(): Promise<bigint>;
     isCallerAdmin(): Promise<boolean>;
+    recordVisit(): Promise<bigint>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    signInVisitor(name: string, institution: string): Promise<VisitorEntry>;
     uploadPhoto(title: string, image: ExternalBlob): Promise<void>;
     uploadStudyMaterial(title: string, description: string, subject: string, file: ExternalBlob): Promise<void>;
 }
@@ -367,6 +377,20 @@ export class Backend implements backendInterface {
             return from_candid_vec_n14(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getAllVisitors(): Promise<Array<VisitorEntry>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllVisitors();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllVisitors();
+            return result;
+        }
+    }
     async getCallerUserProfile(): Promise<UserProfile | null> {
         if (this.processError) {
             try {
@@ -451,6 +475,20 @@ export class Backend implements backendInterface {
             return from_candid_opt_n17(this._uploadFile, this._downloadFile, result);
         }
     }
+    async getVisitorCount(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getVisitorCount();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getVisitorCount();
+            return result;
+        }
+    }
     async isCallerAdmin(): Promise<boolean> {
         if (this.processError) {
             try {
@@ -465,6 +503,20 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async recordVisit(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.recordVisit();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.recordVisit();
+            return result;
+        }
+    }
     async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
         if (this.processError) {
             try {
@@ -476,6 +528,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.saveCallerUserProfile(arg0);
+            return result;
+        }
+    }
+    async signInVisitor(arg0: string, arg1: string): Promise<VisitorEntry> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.signInVisitor(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.signInVisitor(arg0, arg1);
             return result;
         }
     }

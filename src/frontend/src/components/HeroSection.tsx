@@ -3,15 +3,30 @@ import {
   ArrowRight,
   Bell,
   BookOpen,
+  Calendar,
+  Clock,
   Images,
   Leaf,
   Microscope,
+  Users,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import type { ActiveSection } from "../App";
+import { useActor } from "../hooks/useActor";
 
 interface HeroSectionProps {
   onNavigate: (section: ActiveSection) => void;
+  onVisitorCount?: (count: bigint) => void;
+}
+
+function useLiveClock() {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
 }
 
 const quickLinks = [
@@ -44,7 +59,39 @@ const quickLinks = [
   },
 ];
 
-export default function HeroSection({ onNavigate }: HeroSectionProps) {
+export default function HeroSection({
+  onNavigate,
+  onVisitorCount,
+}: HeroSectionProps) {
+  const [visitorCount, setVisitorCount] = useState<bigint | null>(null);
+  const now = useLiveClock();
+  const { actor, isFetching } = useActor();
+
+  const dateStr = now.toLocaleDateString(undefined, {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const timeStr = now.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  useEffect(() => {
+    if (!actor || isFetching) return;
+    actor
+      .recordVisit()
+      .then((count) => {
+        setVisitorCount(count);
+        onVisitorCount?.(count);
+      })
+      .catch(() => {
+        // silently fail — visitor count is non-critical
+      });
+  }, [actor, isFetching, onVisitorCount]);
+
   return (
     <section className="relative overflow-hidden hero-bg">
       {/* Background image overlay */}
@@ -81,6 +128,30 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
 
       {/* Hero content */}
       <div className="relative container mx-auto px-4 pt-20 pb-12 md:pt-28 md:pb-16">
+        {/* Teacher photo — right side, visible to students */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="absolute right-4 top-8 md:right-10 md:top-6 flex flex-col items-center gap-2 pointer-events-none select-none"
+        >
+          <div className="relative">
+            <div className="w-36 h-36 md:w-52 md:h-52 overflow-hidden drop-shadow-2xl">
+              <img
+                src="/assets/uploads/IMG_20260305_074647-1.png"
+                alt="Pratyush Sir - Biology Teacher"
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 whitespace-nowrap bg-emerald-500 text-white text-[10px] md:text-xs font-bold px-2 py-0.5 rounded-full shadow">
+              Pratyush Sir
+            </span>
+          </div>
+          <span className="mt-3 text-white/60 text-[10px] md:text-xs font-medium tracking-wide uppercase">
+            Your Biology Teacher
+          </span>
+        </motion.div>
+
         <div className="max-w-2xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -92,17 +163,69 @@ export default function HeroSection({ onNavigate }: HeroSectionProps) {
               Your Biology Learning Hub
             </span>
 
-            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-3">
+            <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-2">
               Bio-Learner
             </h1>
+            <p className="text-emerald-300 text-base md:text-lg font-medium mb-3 tracking-wide">
+              A Platform for Biology Students by Pratyush Sir
+            </p>
             <p className="text-white/60 text-lg md:text-xl font-light mb-3 tracking-wide">
               Science Education, Simplified.
             </p>
 
-            <p className="text-white/70 text-sm md:text-base max-w-lg mb-8 leading-relaxed">
+            <p className="text-white/70 text-sm md:text-base max-w-lg mb-6 leading-relaxed">
               Your go-to platform for biology study notes, learning materials,
               class notices, and more — designed to make science engaging.
             </p>
+
+            {/* Stats bar: visitors + live date/time */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex flex-wrap items-center gap-3 mb-8"
+            >
+              {/* Visitor count pill */}
+              <motion.div
+                key={visitorCount?.toString()}
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{
+                  opacity: visitorCount != null ? 1 : 0,
+                  scale: visitorCount != null ? 1 : 0.85,
+                }}
+                transition={{ duration: 0.5, type: "spring", stiffness: 200 }}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/12 border border-white/20 backdrop-blur-sm"
+              >
+                <div className="w-6 h-6 rounded-full bg-emerald-400/25 flex items-center justify-center">
+                  <Users className="w-3.5 h-3.5 text-emerald-300" />
+                </div>
+                <span className="text-white font-semibold text-sm font-mono">
+                  {visitorCount != null
+                    ? Number(visitorCount).toLocaleString()
+                    : "—"}
+                </span>
+                <span className="text-white/60 text-xs">Visitors</span>
+              </motion.div>
+
+              {/* Divider */}
+              <div className="w-px h-6 bg-white/20 hidden sm:block" />
+
+              {/* Date pill */}
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm">
+                <Calendar className="w-3.5 h-3.5 text-sky-300" />
+                <span className="text-white/85 text-xs font-medium">
+                  {dateStr}
+                </span>
+              </div>
+
+              {/* Time pill */}
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm">
+                <Clock className="w-3.5 h-3.5 text-amber-300" />
+                <span className="text-white/95 text-xs font-mono font-semibold tabular-nums">
+                  {timeStr}
+                </span>
+              </div>
+            </motion.div>
 
             <div className="flex flex-wrap gap-3">
               <Button

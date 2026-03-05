@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Dna, Menu, ShieldCheck, X } from "lucide-react";
+import { Menu, ShieldCheck, Users, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { ActiveSection } from "../App";
@@ -7,6 +7,7 @@ import type { ActiveSection } from "../App";
 interface HeaderProps {
   activeSection: ActiveSection;
   onNavigate: (section: ActiveSection) => void;
+  visitorCount?: bigint | null;
 }
 
 const navLinks: { label: string; section: Exclude<ActiveSection, "admin"> }[] =
@@ -26,7 +27,11 @@ function useLiveClock() {
   return now;
 }
 
-export default function Header({ activeSection, onNavigate }: HeaderProps) {
+export default function Header({
+  activeSection,
+  onNavigate,
+  visitorCount,
+}: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const now = useLiveClock();
 
@@ -57,9 +62,11 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           className="flex items-center gap-2.5 group"
           aria-label="Bio-Learner Home"
         >
-          <div className="w-9 h-9 rounded-xl bg-leaf flex items-center justify-center shadow-green group-hover:scale-105 transition-transform">
-            <Dna className="w-5 h-5 text-primary-foreground" />
-          </div>
+          <img
+            src="/assets/uploads/IMG_20260305_062630-2.png"
+            alt="Bio-Learner"
+            className="h-10 w-10 rounded-full object-contain group-hover:scale-105 transition-transform shadow-green"
+          />
           <span className="font-display text-xl font-bold text-white tracking-tight">
             Bio-Learner
           </span>
@@ -83,10 +90,26 @@ export default function Header({ activeSection, onNavigate }: HeaderProps) {
           ))}
         </nav>
 
-        {/* Live Date & Time */}
-        <div className="hidden lg:flex flex-col items-end leading-tight text-white/80 text-xs font-mono select-none">
-          <span className="font-semibold text-white/95">{timeStr}</span>
-          <span>{dateStr}</span>
+        {/* Live Date & Time + Visitor Count */}
+        <div className="hidden md:flex items-center gap-4">
+          {visitorCount != null && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              className="flex items-center gap-1.5 text-white/80 text-xs font-mono select-none bg-white/10 border border-white/15 rounded-full px-3 py-1"
+            >
+              <Users className="w-3 h-3 text-emerald-300" />
+              <span className="text-white/95 font-semibold">
+                {Number(visitorCount).toLocaleString()}
+              </span>
+              <span className="text-white/55 hidden lg:inline">visitors</span>
+            </motion.div>
+          )}
+          <div className="hidden lg:flex flex-col items-end leading-tight text-white/80 text-xs font-mono select-none">
+            <span className="font-semibold text-white/95">{timeStr}</span>
+            <span>{dateStr}</span>
+          </div>
         </div>
 
         {/* Admin + Mobile Menu */}

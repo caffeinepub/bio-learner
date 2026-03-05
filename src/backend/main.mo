@@ -69,6 +69,7 @@ actor {
   var nextNoticeId = 0;
   var nextMaterialId = 0;
   var nextPhotoId = 0;
+  var visitorCount : Nat = 0;
 
   let notices = Map.empty<Nat, Notice>();
   let studyMaterials = Map.empty<Nat, StudyMaterial>();
@@ -181,6 +182,51 @@ actor {
     let list = List.empty<Photo>();
     for ((_, photo) in photos.entries()) {
       list.add(photo);
+    };
+    list.toArray();
+  };
+
+  // Visitor Counter
+  public shared ({ caller }) func recordVisit() : async Nat {
+    visitorCount += 1;
+    visitorCount;
+  };
+
+  public query ({ caller }) func getVisitorCount() : async Nat {
+    visitorCount;
+  };
+
+  // Visitor Sign-In Extension
+  type VisitorEntry = {
+    id : Nat;
+    name : Text;
+    institution : Text;
+    visitedAt : Time.Time;
+  };
+
+  var nextVisitorId = 0;
+  let visitorEntries = Map.empty<Nat, VisitorEntry>();
+
+  public shared ({ caller }) func signInVisitor(name : Text, institution : Text) : async VisitorEntry {
+    let entry : VisitorEntry = {
+      id = nextVisitorId;
+      name;
+      institution;
+      visitedAt = Time.now();
+    };
+    visitorEntries.add(nextVisitorId, entry);
+    nextVisitorId += 1;
+    visitorCount += 1;
+    entry;
+  };
+
+  public query ({ caller }) func getAllVisitors() : async [VisitorEntry] {
+    if (not (AccessControl.isAdmin(accessControlState, caller))) {
+      Runtime.trap("Unauthorized: Only admin can view visitor entries");
+    };
+    let list = List.empty<VisitorEntry>();
+    for ((_, entry) in visitorEntries.entries()) {
+      list.add(entry);
     };
     list.toArray();
   };

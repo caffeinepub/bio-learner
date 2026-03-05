@@ -34,6 +34,12 @@ export interface UserProfile { 'name' : string }
 export type UserRole = { 'admin' : null } |
   { 'user' : null } |
   { 'guest' : null };
+export interface VisitorEntry {
+  'id' : bigint,
+  'institution' : string,
+  'name' : string,
+  'visitedAt' : Time,
+}
 export interface _CaffeineStorageCreateCertificateResult {
   'method' : string,
   'blob_hash' : string,
@@ -70,14 +76,18 @@ export interface _SERVICE {
   'getAllNotices' : ActorMethod<[], Array<Notice>>,
   'getAllPhotos' : ActorMethod<[], Array<Photo>>,
   'getAllStudyMaterials' : ActorMethod<[], Array<StudyMaterial>>,
+  'getAllVisitors' : ActorMethod<[], Array<VisitorEntry>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getNotice' : ActorMethod<[bigint], [] | [Notice]>,
   'getPhoto' : ActorMethod<[bigint], [] | [Photo]>,
   'getStudyMaterial' : ActorMethod<[bigint], [] | [StudyMaterial]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'getVisitorCount' : ActorMethod<[], bigint>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'recordVisit' : ActorMethod<[], bigint>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'signInVisitor' : ActorMethod<[string, string], VisitorEntry>,
   'uploadPhoto' : ActorMethod<[string, ExternalBlob], undefined>,
   'uploadStudyMaterial' : ActorMethod<
     [string, string, string, ExternalBlob],

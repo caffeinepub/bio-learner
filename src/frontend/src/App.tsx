@@ -7,6 +7,7 @@ import HeroSection from "./components/HeroSection";
 import NoticesSection from "./components/NoticesSection";
 import PhotoGallerySection from "./components/PhotoGallerySection";
 import StudyMaterialsSection from "./components/StudyMaterialsSection";
+import VisitorPanel from "./components/VisitorPanel";
 
 export type ActiveSection =
   | "home"
@@ -17,6 +18,7 @@ export type ActiveSection =
 
 export default function App() {
   const [activeSection, setActiveSection] = useState<ActiveSection>("home");
+  const [visitorCount, setVisitorCount] = useState<bigint | null>(null);
 
   const navigate = (section: ActiveSection) => {
     setActiveSection(section);
@@ -30,20 +32,30 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header activeSection={activeSection} onNavigate={navigate} />
+      <Header
+        activeSection={activeSection}
+        onNavigate={navigate}
+        visitorCount={visitorCount}
+      />
       <main className="flex-1">
         {activeSection === "admin" ? (
           <AdminPanel onBack={() => setActiveSection("home")} />
         ) : (
           <>
             <div id="home">
-              <HeroSection onNavigate={navigate} />
+              <HeroSection
+                onNavigate={navigate}
+                onVisitorCount={setVisitorCount}
+              />
             </div>
             <div id="notices">
               <NoticesSection />
             </div>
             <div id="materials">
               <StudyMaterialsSection />
+            </div>
+            <div id="visitors">
+              <VisitorPanel />
             </div>
             <div id="gallery">
               <PhotoGallerySection />

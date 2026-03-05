@@ -1,123 +1,83 @@
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Images, X, ZoomIn } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
-import type { Photo } from "../backend.d";
-import { useGetAllPhotos } from "../hooks/useQueries";
+import { X } from "lucide-react";
+import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 
-interface SamplePhoto {
-  id: bigint;
-  title: string;
-  imageUrl: string;
-}
-
-const SAMPLE_PHOTOS: SamplePhoto[] = [
+const photos = [
   {
-    id: 1n,
-    title: "Cell Observation Lab Session",
-    imageUrl: "https://picsum.photos/seed/biology1/600/400",
+    src: "/assets/uploads/IMG_20240730_145109-1.jpg",
+    caption: "Biology Lab Practical",
   },
   {
-    id: 2n,
-    title: "Chemistry Experiment Day",
-    imageUrl: "https://picsum.photos/seed/science2/600/400",
+    src: "/assets/uploads/IMG_20240802_132824-2.jpg",
+    caption: "Smart Class Teaching",
   },
   {
-    id: 3n,
-    title: "Annual Science Exhibition",
-    imageUrl: "https://picsum.photos/seed/exhibition3/600/400",
+    src: "/assets/uploads/IMG_20240731_124700-3.jpg",
+    caption: "Outdoor Field Study",
   },
   {
-    id: 4n,
-    title: "Botanical Garden Field Trip",
-    imageUrl: "https://picsum.photos/seed/garden4/600/400",
+    src: "/assets/uploads/IMG_20241015_130322-4.jpg",
+    caption: "Field Trip - Rice Crop Study",
   },
   {
-    id: 5n,
-    title: "Physics Lab — Optics Experiments",
-    imageUrl: "https://picsum.photos/seed/physics5/600/400",
+    src: "/assets/uploads/Screenshot_2024-08-03-20-02-01-882_com.miui.gallery-1.png",
+    caption: "Microscope Demonstration Outdoors",
   },
   {
-    id: 6n,
-    title: "Biology Olympiad Preparation",
-    imageUrl: "https://picsum.photos/seed/olympiad6/600/400",
+    src: "/assets/uploads/IMG_20240801_131120-2.jpg",
+    caption: "Lab Session - Microscope Class",
+  },
+  {
+    src: "/assets/uploads/IMG_20241113_222955-3.jpg",
+    caption: "Interactive Circle Teaching",
+  },
+  {
+    src: "/assets/uploads/IMG_20240824_131858-4.jpg",
+    caption: "Classroom Activity Session",
+  },
+  {
+    src: "/assets/uploads/IMG_20240828_145548-5.jpg",
+    caption: "Candle Flame Experiment",
+  },
+  {
+    src: "/assets/uploads/IMG_20240731_132645-6.jpg",
+    caption: "Science Lab Equipment Display",
+  },
+  {
+    src: "/assets/uploads/Screenshot_2024-08-03-18-10-59-294_com.miui.gallery-7.png",
+    caption: "Chemistry Lab Demonstration",
+  },
+  {
+    src: "/assets/uploads/IMG_20240730_120926-8.jpg",
+    caption: "Smart Class - Digital Teaching",
+  },
+  {
+    src: "/assets/uploads/IMG_20241015_125352-9.jpg",
+    caption: "Plant Study - Outdoor Learning",
+  },
+  {
+    src: "/assets/uploads/IMG_20240810_121246-10.jpg",
+    caption: "Nitrogen Cycle - Blackboard Teaching",
   },
 ];
 
-type DisplayPhoto = SamplePhoto | (Photo & { imageUrl: string });
-
-function PhotoCard({
-  photo,
-  index,
-  featured,
-  onClick,
-}: {
-  photo: DisplayPhoto;
-  index: number;
-  featured?: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4, delay: index * 0.06 }}
-      className={`group cursor-pointer ${featured ? "md:col-span-2 md:row-span-2" : ""}`}
-      onClick={onClick}
-    >
-      <div
-        className={`relative overflow-hidden rounded-xl border border-border/40 shadow-xs bg-muted ${
-          featured
-            ? "aspect-[16/9] md:aspect-auto md:h-full min-h-48"
-            : "aspect-[4/3]"
-        }`}
-      >
-        <img
-          src={photo.imageUrl}
-          alt={photo.title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          loading="lazy"
-        />
-
-        {/* Persistent bottom gradient + title — always visible */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-
-        {/* Zoom icon — appears on hover */}
-        <div className="absolute top-3 right-3 w-8 h-8 rounded-lg bg-white/15 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-250 border border-white/20 translate-y-1 group-hover:translate-y-0">
-          <ZoomIn className="w-4 h-4 text-white" />
-        </div>
-
-        {/* Title — always at bottom, no duplicate below card */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-          <p
-            className={`text-white font-display font-semibold leading-snug drop-shadow-sm ${
-              featured ? "text-base md:text-lg" : "text-xs md:text-sm"
-            }`}
-          >
-            {photo.title}
-          </p>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
 export default function PhotoGallerySection() {
-  const { data: photos, isLoading } = useGetAllPhotos();
-  const [lightboxPhoto, setLightboxPhoto] = useState<DisplayPhoto | null>(null);
+  const [lightbox, setLightbox] = useState<number | null>(null);
 
-  const backendPhotos: DisplayPhoto[] = (photos ?? []).map((p) => ({
-    ...p,
-    imageUrl: p.image.getDirectURL(),
-  }));
-
-  const displayPhotos: DisplayPhoto[] =
-    backendPhotos.length > 0 ? backendPhotos : SAMPLE_PHOTOS;
+  // Close lightbox on Escape key
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   return (
-    <section className="py-16 md:py-20 bg-background">
+    <section
+      className="py-16 md:py-20 bg-background"
+      data-ocid="gallery.section"
+    >
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div
@@ -127,7 +87,6 @@ export default function PhotoGallerySection() {
           className="mb-10 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4"
         >
           <div className="flex items-start gap-4">
-            {/* Left accent bar */}
             <div className="w-1 self-stretch rounded-full bg-sky-400 flex-shrink-0 mt-1" />
             <div>
               <p className="text-xs font-semibold text-sky-600 uppercase tracking-widest mb-1.5">
@@ -142,83 +101,70 @@ export default function PhotoGallerySection() {
               </p>
             </div>
           </div>
-          {!isLoading && (
-            <Badge
-              variant="secondary"
-              className="self-start sm:self-auto text-sm px-3 py-1 bg-sky-50 text-sky-700 border border-sky-200 font-semibold flex-shrink-0"
-            >
-              {displayPhotos.length}{" "}
-              {displayPhotos.length === 1 ? "photo" : "photos"}
-            </Badge>
-          )}
         </motion.div>
 
-        {/* Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-            {[1, 2, 3, 4, 5, 6].map((n) => (
-              <Skeleton key={n} className="aspect-[4/3] rounded-xl" />
-            ))}
-          </div>
-        ) : displayPhotos.length === 0 ? (
-          <div className="text-center py-16 text-muted-foreground">
-            <AlertCircle className="w-10 h-10 mx-auto mb-3 opacity-40" />
-            <p className="font-medium">No photos uploaded yet.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 md:auto-rows-[200px]">
-            {displayPhotos.map((photo, i) => (
-              <PhotoCard
-                key={String(photo.id)}
-                photo={photo}
-                index={i}
-                featured={i === 0}
-                onClick={() => setLightboxPhoto(photo)}
+        {/* Photo Grid */}
+        <div
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
+          data-ocid="gallery.list"
+        >
+          {photos.map((photo, i) => (
+            <motion.div
+              key={photo.src}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07 }}
+              className="group relative overflow-hidden rounded-xl cursor-pointer aspect-[4/3] bg-muted shadow-sm hover:shadow-md transition-shadow"
+              data-ocid={`gallery.item.${i + 1}`}
+              onClick={() => setLightbox(i)}
+            >
+              <img
+                src={photo.src}
+                alt={photo.caption}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-            ))}
-          </div>
-        )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                <p className="text-white text-xs font-medium leading-snug">
+                  {photo.caption}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxPhoto && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/88 p-4"
-            onClick={() => setLightboxPhoto(null)}
+      {lightbox !== null && (
+        <dialog
+          open
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 w-full h-full max-w-none max-h-none m-0 border-none"
+          data-ocid="gallery.modal"
+          onClick={() => setLightbox(null)}
+          onKeyDown={(e) => e.key === "Escape" && setLightbox(null)}
+        >
+          <button
+            type="button"
+            className="absolute top-4 right-4 text-white bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"
+            data-ocid="gallery.close_button"
+            onClick={() => setLightbox(null)}
           >
-            <motion.div
-              initial={{ scale: 0.92, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.92, opacity: 0 }}
-              transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="relative max-w-4xl w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                type="button"
-                onClick={() => setLightboxPhoto(null)}
-                className="absolute -top-11 right-0 w-9 h-9 rounded-full bg-white/15 flex items-center justify-center text-white hover:bg-white/25 transition-colors border border-white/20"
-                aria-label="Close lightbox"
-              >
-                <X className="w-4 h-4" />
-              </button>
-              <img
-                src={lightboxPhoto.imageUrl}
-                alt={lightboxPhoto.title}
-                className="w-full rounded-xl shadow-2xl"
-              />
-              <p className="text-center text-white/75 mt-3 text-sm font-medium font-display">
-                {lightboxPhoto.title}
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <X className="w-5 h-5" />
+          </button>
+          <motion.img
+            key={lightbox}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            src={photos[lightbox].src}
+            alt={photos[lightbox].caption}
+            className="max-w-full max-h-[85vh] rounded-lg shadow-2xl object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <p className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80 text-sm font-medium">
+            {photos[lightbox].caption}
+          </p>
+        </dialog>
+      )}
     </section>
   );
 }

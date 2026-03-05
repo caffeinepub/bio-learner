@@ -44,6 +44,12 @@ export const StudyMaterial = IDL.Record({
   'file' : ExternalBlob,
   'description' : IDL.Text,
 });
+export const VisitorEntry = IDL.Record({
+  'id' : IDL.Nat,
+  'institution' : IDL.Text,
+  'name' : IDL.Text,
+  'visitedAt' : Time,
+});
 export const UserProfile = IDL.Record({ 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
@@ -82,6 +88,7 @@ export const idlService = IDL.Service({
   'getAllNotices' : IDL.Func([], [IDL.Vec(Notice)], ['query']),
   'getAllPhotos' : IDL.Func([], [IDL.Vec(Photo)], ['query']),
   'getAllStudyMaterials' : IDL.Func([], [IDL.Vec(StudyMaterial)], ['query']),
+  'getAllVisitors' : IDL.Func([], [IDL.Vec(VisitorEntry)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getNotice' : IDL.Func([IDL.Nat], [IDL.Opt(Notice)], ['query']),
@@ -92,8 +99,11 @@ export const idlService = IDL.Service({
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
+  'getVisitorCount' : IDL.Func([], [IDL.Nat], ['query']),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'recordVisit' : IDL.Func([], [IDL.Nat], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'signInVisitor' : IDL.Func([IDL.Text, IDL.Text], [VisitorEntry], []),
   'uploadPhoto' : IDL.Func([IDL.Text, ExternalBlob], [], []),
   'uploadStudyMaterial' : IDL.Func(
       [IDL.Text, IDL.Text, IDL.Text, ExternalBlob],
@@ -141,6 +151,12 @@ export const idlFactory = ({ IDL }) => {
     'file' : ExternalBlob,
     'description' : IDL.Text,
   });
+  const VisitorEntry = IDL.Record({
+    'id' : IDL.Nat,
+    'institution' : IDL.Text,
+    'name' : IDL.Text,
+    'visitedAt' : Time,
+  });
   const UserProfile = IDL.Record({ 'name' : IDL.Text });
   
   return IDL.Service({
@@ -179,6 +195,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllNotices' : IDL.Func([], [IDL.Vec(Notice)], ['query']),
     'getAllPhotos' : IDL.Func([], [IDL.Vec(Photo)], ['query']),
     'getAllStudyMaterials' : IDL.Func([], [IDL.Vec(StudyMaterial)], ['query']),
+    'getAllVisitors' : IDL.Func([], [IDL.Vec(VisitorEntry)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getNotice' : IDL.Func([IDL.Nat], [IDL.Opt(Notice)], ['query']),
@@ -193,8 +210,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
+    'getVisitorCount' : IDL.Func([], [IDL.Nat], ['query']),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'recordVisit' : IDL.Func([], [IDL.Nat], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'signInVisitor' : IDL.Func([IDL.Text, IDL.Text], [VisitorEntry], []),
     'uploadPhoto' : IDL.Func([IDL.Text, ExternalBlob], [], []),
     'uploadStudyMaterial' : IDL.Func(
         [IDL.Text, IDL.Text, IDL.Text, ExternalBlob],

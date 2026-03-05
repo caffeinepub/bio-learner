@@ -10,15 +10,15 @@ export default function YouTubeSection() {
       className="relative overflow-hidden py-16 md:py-20"
       style={{
         background:
-          "linear-gradient(135deg, oklch(0.14 0.04 25) 0%, oklch(0.18 0.06 22) 45%, oklch(0.16 0.05 30) 100%)",
+          "linear-gradient(135deg, oklch(0.22 0.10 155) 0%, oklch(0.28 0.13 148) 45%, oklch(0.24 0.11 158) 100%)",
       }}
     >
-      {/* Subtle red glow orbs */}
+      {/* Subtle glow orbs */}
       <div
         className="absolute top-0 left-1/4 w-80 h-80 rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle, oklch(0.55 0.22 25 / 0.18) 0%, transparent 70%)",
+            "radial-gradient(circle, oklch(0.60 0.22 148 / 0.28) 0%, transparent 70%)",
           filter: "blur(40px)",
         }}
       />
@@ -26,7 +26,7 @@ export default function YouTubeSection() {
         className="absolute bottom-0 right-1/4 w-64 h-64 rounded-full pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle, oklch(0.50 0.20 28 / 0.14) 0%, transparent 70%)",
+            "radial-gradient(circle, oklch(0.55 0.20 152 / 0.22) 0%, transparent 70%)",
           filter: "blur(40px)",
         }}
       />
@@ -52,9 +52,9 @@ export default function YouTubeSection() {
           <span
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-widest uppercase"
             style={{
-              background: "oklch(0.55 0.22 25 / 0.18)",
-              border: "1px solid oklch(0.55 0.22 25 / 0.35)",
-              color: "oklch(0.85 0.12 28)",
+              background: "oklch(0.55 0.18 150 / 0.20)",
+              border: "1px solid oklch(0.55 0.18 150 / 0.40)",
+              color: "oklch(0.85 0.12 150)",
             }}
           >
             <Play className="w-3 h-3 fill-current" />
@@ -80,16 +80,20 @@ export default function YouTubeSection() {
               }
               aria-label="Visit YouTube Channel: Lets Explore with Pratyush"
             >
-              {/* Glowing ring */}
+              {/* Glowing red ring */}
               <div
-                className="absolute -inset-1.5 rounded-full animate-pulse"
+                className="absolute -inset-2 rounded-full animate-pulse"
                 style={{
                   background:
-                    "conic-gradient(from 0deg, oklch(0.60 0.24 25), oklch(0.50 0.20 30), oklch(0.60 0.24 25))",
-                  opacity: 0.6,
+                    "conic-gradient(from 0deg, oklch(0.58 0.28 25), oklch(0.42 0.24 18), oklch(0.58 0.28 25))",
+                  opacity: 1,
+                  boxShadow: "0 0 28px 6px oklch(0.55 0.28 25 / 0.70)",
                 }}
               />
-              <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl">
+              <div
+                className="relative w-28 h-28 md:w-36 md:h-36 rounded-full overflow-hidden border-4 border-red-600/80 shadow-2xl"
+                style={{ boxShadow: "0 0 20px oklch(0.55 0.28 25 / 0.60)" }}
+              >
                 <img
                   src="/assets/uploads/Screenshot_2023-11-25-16-54-25-694_cn.wps.moffice_eng-1.png"
                   alt="Lets Explore with Pratyush - YouTube Channel"
@@ -99,7 +103,10 @@ export default function YouTubeSection() {
               {/* YouTube badge */}
               <div
                 className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full shadow-lg"
-                style={{ background: "oklch(0.50 0.22 25)" }}
+                style={{
+                  background: "oklch(0.48 0.28 25)",
+                  boxShadow: "0 2px 12px oklch(0.50 0.28 25 / 0.70)",
+                }}
               >
                 <Youtube className="w-3 h-3 text-white fill-white" />
                 <span className="text-white text-[10px] font-bold whitespace-nowrap">
@@ -148,10 +155,11 @@ export default function YouTubeSection() {
                 className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full font-bold text-sm shadow-lg focus:outline-none focus-visible:ring-4"
                 style={
                   {
-                    background: "oklch(0.50 0.22 25)",
+                    background: "oklch(0.48 0.28 25)",
                     color: "#fff",
-                    boxShadow: "0 4px 20px oklch(0.50 0.22 25 / 0.45)",
-                    "--tw-ring-color": "oklch(0.55 0.22 25 / 0.55)",
+                    boxShadow:
+                      "0 4px 28px oklch(0.50 0.28 25 / 0.75), 0 0 0 2px oklch(0.60 0.26 25 / 0.40)",
+                    "--tw-ring-color": "oklch(0.55 0.26 25 / 0.55)",
                   } as React.CSSProperties
                 }
               >

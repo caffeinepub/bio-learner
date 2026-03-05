@@ -8,6 +8,7 @@ import NoticesSection from "./components/NoticesSection";
 import PhotoGallerySection from "./components/PhotoGallerySection";
 import StudyMaterialsSection from "./components/StudyMaterialsSection";
 import VisitorPanel from "./components/VisitorPanel";
+import YouTubeSection from "./components/YouTubeSection";
 
 export type ActiveSection =
   | "home"
@@ -63,6 +64,7 @@ export default function App() {
           </>
         )}
       </main>
+      <YouTubeSection />
       <Footer />
       <Toaster richColors position="top-right" />
     </div>

@@ -1,4 +1,4 @@
-import { Bell, BookOpen, Dna, Heart, Images } from "lucide-react";
+import { Bell, BookOpen, Dna, Heart, Images, Youtube } from "lucide-react";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -33,13 +33,24 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2">
               {[
-                { icon: Bell, label: "Notices", href: "#notices" },
+                {
+                  icon: Bell,
+                  label: "Notices",
+                  href: "#notices",
+                  external: false,
+                },
                 {
                   icon: BookOpen,
                   label: "Study Materials",
                   href: "#materials",
+                  external: false,
                 },
-                { icon: Images, label: "Photo Gallery", href: "#gallery" },
+                {
+                  icon: Images,
+                  label: "Photo Gallery",
+                  href: "#gallery",
+                  external: false,
+                },
               ].map((link) => (
                 <li key={link.label}>
                   <a
@@ -51,6 +62,18 @@ export default function Footer() {
                   </a>
                 </li>
               ))}
+              <li>
+                <a
+                  href="https://www.youtube.com/@Lets_Explore_with_Pratyush"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-ocid="footer.youtube.link"
+                  className="flex items-center gap-2 text-sm text-white/65 hover:text-white transition-colors"
+                >
+                  <Youtube className="w-3.5 h-3.5 text-red-400" />
+                  YouTube Channel
+                </a>
+              </li>
             </ul>
           </div>
 

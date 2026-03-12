@@ -1,8 +1,9 @@
 import Map "mo:core/Map";
 import List "mo:core/List";
-import Runtime "mo:core/Runtime";
+import Nat "mo:core/Nat";
 import Time "mo:core/Time";
 import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 import MixinAuthorization "authorization/MixinAuthorization";
@@ -15,17 +16,17 @@ actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
-  // User Profile Type
+  // User Profile
   public type UserProfile = {
     name : Text;
   };
 
   let userProfiles = Map.empty<Principal, UserProfile>();
 
-  // User Profile Management
+  // Profiles Management
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can access profiles");
+      Runtime.trap("Unauthorized: Only users can view profiles");
     };
     userProfiles.get(caller);
   };
@@ -44,7 +45,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Content Types
+  // Notice
   type Notice = {
     id : Nat;
     title : Text;
@@ -52,33 +53,12 @@ actor {
     date : Time.Time;
   };
 
-  type StudyMaterial = {
-    id : Nat;
-    title : Text;
-    description : Text;
-    subject : Text;
-    file : Storage.ExternalBlob;
-  };
-
-  type Photo = {
-    id : Nat;
-    title : Text;
-    image : Storage.ExternalBlob;
-  };
-
-  var nextNoticeId = 0;
-  var nextMaterialId = 0;
-  var nextPhotoId = 0;
-  var visitorCount : Nat = 0;
-
   let notices = Map.empty<Nat, Notice>();
-  let studyMaterials = Map.empty<Nat, StudyMaterial>();
-  let photos = Map.empty<Nat, Photo>();
+  var nextNoticeId = 0;
 
-  // Notices
   public shared ({ caller }) func createNotice(title : Text, content : Text) : async () {
     if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admin can create notices");
+      Runtime.trap("Unauthorized: Only admins can create notices");
     };
     let notice : Notice = {
       id = nextNoticeId;
@@ -92,7 +72,7 @@ actor {
 
   public shared ({ caller }) func deleteNotice(id : Nat) : async () {
     if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admin can delete notices");
+      Runtime.trap("Unauthorized: Only admins can delete notices");
     };
     if (not (notices.containsKey(id))) {
       Runtime.trap("Notice not found");
@@ -100,22 +80,33 @@ actor {
     notices.remove(id);
   };
 
-  public query ({ caller }) func getNotice(id : Nat) : async ?Notice {
+  public query func getNotice(id : Nat) : async ?Notice {
     notices.get(id);
   };
 
-  public query ({ caller }) func getAllNotices() : async [Notice] {
-    let list = List.empty<Notice>();
+  public query func getAllNotices() : async [Notice] {
+    let noticesArray = List.empty<Notice>();
     for ((_, notice) in notices.entries()) {
-      list.add(notice);
+      noticesArray.add(notice);
     };
-    list.toArray();
+    noticesArray.toArray();
   };
 
-  // Study Materials
+  // StudyMaterial
+  type StudyMaterial = {
+    id : Nat;
+    title : Text;
+    description : Text;
+    subject : Text;
+    file : Storage.ExternalBlob;
+  };
+
+  let studyMaterials = Map.empty<Nat, StudyMaterial>();
+  var nextMaterialId = 0;
+
   public shared ({ caller }) func uploadStudyMaterial(title : Text, description : Text, subject : Text, file : Storage.ExternalBlob) : async () {
     if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admin can upload study materials");
+      Runtime.trap("Unauthorized: Only admins can upload study materials");
     };
     let material : StudyMaterial = {
       id = nextMaterialId;
@@ -130,7 +121,7 @@ actor {
 
   public shared ({ caller }) func deleteStudyMaterial(id : Nat) : async () {
     if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admin can delete study materials");
+      Runtime.trap("Unauthorized: Only admins can delete study materials");
     };
     if (not (studyMaterials.containsKey(id))) {
       Runtime.trap("Study material not found");
@@ -138,22 +129,31 @@ actor {
     studyMaterials.remove(id);
   };
 
-  public query ({ caller }) func getStudyMaterial(id : Nat) : async ?StudyMaterial {
+  public query func getStudyMaterial(id : Nat) : async ?StudyMaterial {
     studyMaterials.get(id);
   };
 
-  public query ({ caller }) func getAllStudyMaterials() : async [StudyMaterial] {
-    let list = List.empty<StudyMaterial>();
+  public query func getAllStudyMaterials() : async [StudyMaterial] {
+    let materialsArray = List.empty<StudyMaterial>();
     for ((_, material) in studyMaterials.entries()) {
-      list.add(material);
+      materialsArray.add(material);
     };
-    list.toArray();
+    materialsArray.toArray();
   };
 
-  // Photos
+  // Photo
+  type Photo = {
+    id : Nat;
+    title : Text;
+    image : Storage.ExternalBlob;
+  };
+
+  let photos = Map.empty<Nat, Photo>();
+  var nextPhotoId = 0;
+
   public shared ({ caller }) func uploadPhoto(title : Text, image : Storage.ExternalBlob) : async () {
     if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admin can upload photos");
+      Runtime.trap("Unauthorized: Only admins can upload photos");
     };
     let photo : Photo = {
       id = nextPhotoId;
@@ -166,7 +166,7 @@ actor {
 
   public shared ({ caller }) func deletePhoto(id : Nat) : async () {
     if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admin can delete photos");
+      Runtime.trap("Unauthorized: Only admins can delete photos");
     };
     if (not (photos.containsKey(id))) {
       Runtime.trap("Photo not found");
@@ -174,29 +174,30 @@ actor {
     photos.remove(id);
   };
 
-  public query ({ caller }) func getPhoto(id : Nat) : async ?Photo {
+  public query func getPhoto(id : Nat) : async ?Photo {
     photos.get(id);
   };
 
-  public query ({ caller }) func getAllPhotos() : async [Photo] {
-    let list = List.empty<Photo>();
+  public query func getAllPhotos() : async [Photo] {
+    let photosArray = List.empty<Photo>();
     for ((_, photo) in photos.entries()) {
-      list.add(photo);
+      photosArray.add(photo);
     };
-    list.toArray();
+    photosArray.toArray();
   };
 
   // Visitor Counter
-  public shared ({ caller }) func recordVisit() : async Nat {
+  var visitorCount : Nat = 0;
+
+  public shared func recordVisit() : async () {
     visitorCount += 1;
+  };
+
+  public query func getVisitorCount() : async Nat {
     visitorCount;
   };
 
-  public query ({ caller }) func getVisitorCount() : async Nat {
-    visitorCount;
-  };
-
-  // Visitor Sign-In Extension
+  // Visitor Sign-In
   type VisitorEntry = {
     id : Nat;
     name : Text;
@@ -204,10 +205,10 @@ actor {
     visitedAt : Time.Time;
   };
 
-  var nextVisitorId = 0;
   let visitorEntries = Map.empty<Nat, VisitorEntry>();
+  var nextVisitorId = 0;
 
-  public shared ({ caller }) func signInVisitor(name : Text, institution : Text) : async VisitorEntry {
+  public shared func signInVisitor(name : Text, institution : Text) : async VisitorEntry {
     let entry : VisitorEntry = {
       id = nextVisitorId;
       name;
@@ -220,14 +221,11 @@ actor {
     entry;
   };
 
-  public query ({ caller }) func getAllVisitors() : async [VisitorEntry] {
-    if (not (AccessControl.isAdmin(accessControlState, caller))) {
-      Runtime.trap("Unauthorized: Only admin can view visitor entries");
-    };
-    let list = List.empty<VisitorEntry>();
+  public query func getAllVisitors() : async [VisitorEntry] {
+    let visitorsArray = List.empty<VisitorEntry>();
     for ((_, entry) in visitorEntries.entries()) {
-      list.add(entry);
+      visitorsArray.add(entry);
     };
-    list.toArray();
+    visitorsArray.toArray();
   };
 };

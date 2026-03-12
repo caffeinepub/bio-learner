@@ -83,6 +83,7 @@ export default function HeroSection({
     if (!actor || isFetching) return;
     actor
       .recordVisit()
+      .then(() => actor.getVisitorCount())
       .then((count) => {
         setVisitorCount(count);
         onVisitorCount?.(count);

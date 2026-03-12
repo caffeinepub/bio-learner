@@ -65,7 +65,7 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     getVisitorCount(): Promise<bigint>;
     isCallerAdmin(): Promise<boolean>;
-    recordVisit(): Promise<bigint>;
+    recordVisit(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     signInVisitor(name: string, institution: string): Promise<VisitorEntry>;
     uploadPhoto(title: string, image: ExternalBlob): Promise<void>;

@@ -158,7 +158,7 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     getVisitorCount(): Promise<bigint>;
     isCallerAdmin(): Promise<boolean>;
-    recordVisit(): Promise<bigint>;
+    recordVisit(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     signInVisitor(name: string, institution: string): Promise<VisitorEntry>;
     uploadPhoto(title: string, image: ExternalBlob): Promise<void>;
@@ -503,7 +503,7 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async recordVisit(): Promise<bigint> {
+    async recordVisit(): Promise<void> {
         if (this.processError) {
             try {
                 const result = await this.actor.recordVisit();

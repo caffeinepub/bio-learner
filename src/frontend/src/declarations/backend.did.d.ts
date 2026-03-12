@@ -85,7 +85,7 @@ export interface _SERVICE {
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'getVisitorCount' : ActorMethod<[], bigint>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
-  'recordVisit' : ActorMethod<[], bigint>,
+  'recordVisit' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'signInVisitor' : ActorMethod<[string, string], VisitorEntry>,
   'uploadPhoto' : ActorMethod<[string, ExternalBlob], undefined>,
